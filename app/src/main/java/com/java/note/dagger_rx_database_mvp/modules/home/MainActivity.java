@@ -1,5 +1,6 @@
 package com.java.note.dagger_rx_database_mvp.modules.home;
 
+import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,12 +10,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.java.note.dagger_rx_database_mvp.R;
 import com.java.note.dagger_rx_database_mvp.base.BaseActivity;
 import com.java.note.dagger_rx_database_mvp.di.component.DaggerCakeComponent;
 import com.java.note.dagger_rx_database_mvp.di.module.CakeModule;
+import com.java.note.dagger_rx_database_mvp.modules.details.DetailActivity;
 import com.java.note.dagger_rx_database_mvp.modules.home.adapter.CakeAdapter;
 import com.java.note.dagger_rx_database_mvp.mvp.model.Cake;
 import com.java.note.dagger_rx_database_mvp.mvp.presenter.CakePresenter;
@@ -27,7 +30,8 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 
-public class MainActivity extends BaseActivity implements MainView {
+public class MainActivity extends BaseActivity implements MainView,
+        CakeAdapter.OnCakeClickListener {
 
     @BindView(R.id.cake_list)
     protected RecyclerView cakeList;
@@ -47,7 +51,7 @@ public class MainActivity extends BaseActivity implements MainView {
     private void initializeList() {
         cakeList.setHasFixedSize(true);
         cakeList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        cakeAdapter = new CakeAdapter(getLayoutInflater());
+        cakeAdapter = new CakeAdapter(this, getLayoutInflater());
         cakeList.setAdapter(cakeAdapter);
     }
 
@@ -145,5 +149,19 @@ public class MainActivity extends BaseActivity implements MainView {
     protected void onDestroy() {
         super.onDestroy();
         presenter.dispose();
+    }
+
+    @Override
+    public void onClick(View view, Cake cake, int position) {
+        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+        intent.putExtra(DetailActivity.CAKE, cake);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            ActivityOptions options = ActivityOptions
+                    .makeSceneTransitionAnimation(MainActivity.this, view, "cakeImageAnimation");
+            startActivity(intent, options.toBundle());
+        } else {
+            startActivity(intent);
+        }
     }
 }
