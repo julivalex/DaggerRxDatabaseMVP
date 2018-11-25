@@ -39,6 +39,12 @@ public class CakePresenter extends BasePresenter<MainView> {
         subscribe(cakesResponseObservable);
     }
 
+    public void getCakesFromDatabase() {
+        List<Cake> cakes = storage.getSavedCakes();
+        getView().onClearItems();
+        getView().onCakeLoaded(cakes);
+    }
+
     //http://qaru.site/questions/14581533/android-rxjava2-subscription-within-onclick
     private void subscribe(Observable<CakesResponse> observable) {
         disposableConnect();

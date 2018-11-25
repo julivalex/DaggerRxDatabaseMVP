@@ -29,7 +29,7 @@ public class CakeMapper {
                     myCake.setDetailDescription(cake.getDetailDescription());
                     myCake.setPreviewDescription(cake.getPreviewDescription());
                     myCake.setImageUrl(cake.getImage());
-
+                    storage.addCake(myCake);
                     cakeList.add(myCake);
                 }
             }

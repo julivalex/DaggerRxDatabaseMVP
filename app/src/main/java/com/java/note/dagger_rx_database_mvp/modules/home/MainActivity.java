@@ -59,7 +59,7 @@ public class MainActivity extends BaseActivity implements MainView,
         if (NetworkUtils.isNetAvailable(this)) {
             presenter.getCakes();
         } else {
-
+            presenter.getCakesFromDatabase();
         }
     }
 
