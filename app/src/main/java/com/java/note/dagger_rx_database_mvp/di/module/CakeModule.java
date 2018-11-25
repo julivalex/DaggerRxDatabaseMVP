@@ -2,7 +2,6 @@ package com.java.note.dagger_rx_database_mvp.di.module;
 
 import com.java.note.dagger_rx_database_mvp.api.CakeApiService;
 import com.java.note.dagger_rx_database_mvp.di.scope.PerActivity;
-import com.java.note.dagger_rx_database_mvp.mvp.presenter.CakePresenter;
 import com.java.note.dagger_rx_database_mvp.mvp.view.MainView;
 
 import dagger.Module;
@@ -30,9 +29,4 @@ public class CakeModule {
         return mainView;
     }
 
-    @PerActivity
-    @Provides
-    CakePresenter provideCakePresenter() {
-        return new CakePresenter();
-    }
 }

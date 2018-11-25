@@ -13,40 +13,68 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
-public class CakePresenter extends BasePresenter<MainView>  {
+public class CakePresenter extends BasePresenter<MainView> {
 
-    @Inject protected CakeApiService apiService;
-    @Inject protected CakeMapper cakeMapper;
-    @Inject protected Storage storage;
+    CompositeDisposable compositeDisposable;
+
+    @Inject
+    protected CakeApiService apiService;
+    @Inject
+    protected CakeMapper cakeMapper;
+    @Inject
+    protected Storage storage;
 
     @Inject
     public CakePresenter() {
-
     }
 
     public void getCakes() {
         getView().onShowDialog("Loading cakes...");
         Observable<CakesResponse> cakesResponseObservable = apiService.getCakes();
-        subscribe(cakesResponseObservable, this);
+        subscribe(cakesResponseObservable);
     }
 
-    @Override
-    public void onNext(CakesResponse cakesResponse) {
-        List<Cake> cakes = cakeMapper.mapCakes(storage, cakesResponse);
-        getView().onClearItems();
-        getView().onCakeLoaded(cakes);
+    private void subscribe(Observable<CakesResponse> observable) {
+        disposableConnect();
+        compositeDisposable.add(observable
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<CakesResponse>() {
+                    @Override
+                    public void onNext(CakesResponse cakesResponse) {
+                        List<Cake> cakes = cakeMapper.mapCakes(storage, cakesResponse);
+                        getView().onClearItems();
+                        getView().onCakeLoaded(cakes);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        getView().onHideDialog();
+                        getView().onShowToast("Error loading cakes " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        getView().onHideDialog();
+                        getView().onShowToast("Cakes loading complete!");
+                    }
+                }));
     }
 
-    @Override
-    public void onError(Throwable e) {
-        getView().onHideDialog();
-        getView().onShowToast("Error loading cakes " + e.getMessage());
+    private void disposableConnect() {
+        if (compositeDisposable == null || compositeDisposable.isDisposed()) {
+            compositeDisposable = new CompositeDisposable();
+        }
     }
 
-    @Override
-    public void onComplete() {
-        getView().onHideDialog();
-        getView().onShowToast("Cakes loading complete!");
+    public void dispose() {
+        if (compositeDisposable != null) {
+            compositeDisposable.dispose();
+        }
     }
 }

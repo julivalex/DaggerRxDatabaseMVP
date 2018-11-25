@@ -11,27 +11,31 @@ import android.support.v7.app.AppCompatActivity;
 import com.java.note.dagger_rx_database_mvp.application.CakeApplication;
 import com.java.note.dagger_rx_database_mvp.di.component.ApplicationComponent;
 
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public abstract class BaseActivity extends AppCompatActivity {
 
     private ProgressDialog dialog;
-    //private Unbinder unbinder;
+    private Unbinder unbinder;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getContentView());
-        //unbinder = ButterKnife.bind(this);
+        unbinder = ButterKnife.bind(this);
         onViewReady(savedInstanceState, getIntent());
     }
 
     @CallSuper
     protected void onViewReady(Bundle savedInstanceState, Intent intent) {
+        resolveDaggerDependency();
         //To be used by child activities
     }
 
     @Override
     protected void onDestroy() {
-        //unbinder.unbind();
+        unbinder.unbind();
         super.onDestroy();
     }
 
@@ -57,7 +61,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected void hideDialog() {
-        if (dialog != null && !dialog.isShowing()) {
+        if (dialog != null && dialog.isShowing()) {
             dialog.dismiss();
         }
     }
